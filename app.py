@@ -1,5 +1,5 @@
 import cv2
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(1) # dont change this 
 while True:
     ret, frame = cap.read()
     # Your image processing code here
