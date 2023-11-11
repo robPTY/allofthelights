@@ -28,15 +28,55 @@ while True:
         thumb_tip = (landmarks[4].x, landmarks[4].y)
         pinky_base = (landmarks[17].x, landmarks[17].y)
         distance_thumb_pinky = ((thumb_tip[0] - pinky_base[0])**2 + (thumb_tip[1] - pinky_base[1])**2)**0.5
-        if(
-            middle_finger_y < closed_fist_threshold and
-            ring_finger_y < closed_fist_threshold and
-            thumb_tip_y > closed_fist_threshold and
-            thumb_base_y > closed_fist_threshold
+
+        # Extract landmarks for the thumb, index finger, and middle finger
+        thumb_tip = landmarks[4]
+        index_tip = landmarks[8]
+        middle_tip = landmarks[12]
+        pinky_tip = landmarks[20]
+
+        # Calculate distances between thumb tip and index/middle fingertips
+        distance_thumb_index = ((thumb_tip.x - index_tip.x)**2 + (thumb_tip.y - index_tip.y)**2)**0.5
+        distance_thumb_middle = ((thumb_tip.x - middle_tip.x)**2 + (thumb_tip.y - middle_tip.y)**2)**0.5
+        distance_thumb_pinky = ((thumb_tip.x - pinky_tip.x)**2 + (thumb_tip.y - pinky_tip.y)**2)**0.5
+         # Calculate the x-coordinate difference between thumb tip and index fingertip
+        x_diff_thumb_index = thumb_tip.x - index_tip.x
+
+        # Define a threshold for the circle gesture
+        circle_threshold = 0.1 
+
+        # Define a threshold for the 'ok' sign
+        ok_sign_threshold = 0.05
+
+        # Define a threshold for the thumbs-up gesture
+        thumbs_up_threshold = 0.1
+
+        # Define a threshold for the thumbs-down gesture
+        thumbs_down_threshold = 0.2
+
+        # Define a threshold for the left arrow gesture
+        left_arrow_threshold = -0.1
+
+        # Define a threshold for the right arrow gesture
+        right_arrow_threshold = 0.1
+
+        if (abs(distance_thumb_index - distance_thumb_pinky) < circle_threshold):
+            cv2.putText(frame, 'Turn light off', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        elif(
+            distance_thumb_index < ok_sign_threshold and 
+            distance_thumb_middle < ok_sign_threshold
         ):
-            cv2.putText(frame, 'Closed Fist Detected!', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            cv2.putText(frame,'Turn light on', (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        elif(distance_thumb_index < thumbs_up_threshold):
+            cv2.putText(frame,'Turn brightness up', (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        elif(distance_thumb_index > thumbs_down_threshold):
+            cv2.putText(frame,'Turn brightness down', (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        elif(x_diff_thumb_index < left_arrow_threshold):
+            cv2.putText(frame,'Next color', (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        elif(x_diff_thumb_index > right_arrow_threshold):
+            cv2.putText(frame,'Previous color', (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         else:
-            # If the hand is not in a closed fist position, reset the start time
+            # If the hand is not any defined positions, reset the start time
             closed_fist_start_time = None
         # Check if the hand is open based on distance between thumb tip and pinky base
         if distance_thumb_pinky > open_hand_threshold:
