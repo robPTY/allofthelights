@@ -1,13 +1,14 @@
 import cv2
 import numpy as np
 import mediapipe as mp 
+import serial
 import time
 cap = cv2.VideoCapture(0) # dont change this 
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands()
 mp_drawing = mp.solutions.drawing_utils
 
-
+ser = serial.Serial('COM3', 9600)
 time_threshold = 0.2
 closed_fist_start_time = None
 closed_fist_threshold = 0.81  # Adjust as needed
@@ -34,6 +35,7 @@ while True:
             thumb_tip_y > closed_fist_threshold and
             thumb_base_y > closed_fist_threshold
         ):
+            ser.write(b'1')
             cv2.putText(frame, 'Closed Fist Detected!', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         else:
             # If the hand is not in a closed fist position, reset the start time
@@ -46,6 +48,6 @@ while True:
     cv2.imshow('Frame', frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
-
+ser.close()
 cap.release()
 cv2.destroyAllWindows()
